@@ -1,9 +1,14 @@
+"""
+PLACEHOLDER
+
+PLACEHOLDER
+"""
+
 import argparse
 import multiprocessing as mp
 import os
 import laspy
 import numpy as np
-import pandas as pd
 import random
 from concurrent.futures import ProcessPoolExecutor
 from itertools import repeat
@@ -15,10 +20,16 @@ def parse_tile(file_path, split, output_root):
 
     # Extract coordinates [x, y, z], strength [0.->1.] & label [uint]
     las = laspy.read(file_path)
-    coord = np.vstack((las.x, las.y, las.z)).transpose()
-    intensity = np.array(las.intensity)
+    coord = np.array((las.x, las.y, las.z)).transpose()
+    intensity = np.array(las.intensity).reshape([-1, 1])
     strength = intensity/np.iinfo(intensity.dtype).max
     segment = np.array(las.classification)
+
+    segment[np.isin(segment, [1, 2, 3, 6])] = 0
+    segment[segment == 4] = 1
+    segment[segment == 5] = 2
+    segment[segment == 7] = 3
+    segment[segment == 8] = 4
 
     output_root = Path(output_root)
     save_path = output_root / split / file_path.stem
@@ -26,7 +37,6 @@ def parse_tile(file_path, split, output_root):
     np.save(save_path / "coord.npy", coord.astype(np.float32))
     np.save(save_path / "strength.npy", strength.astype(np.float32))
     np.save(save_path / "segment.npy", segment.astype(np.uint8))
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
