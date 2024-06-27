@@ -38,6 +38,7 @@ def parse_tile(file_path, split, output_root):
     np.save(save_path / "strength.npy", strength.astype(np.float32))
     np.save(save_path / "segment.npy", segment.astype(np.uint8))
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -74,9 +75,9 @@ if __name__ == "__main__":
     # Retrieve the file paths of the las/laz files per split.
     data_path = Path(config.dataset_root)
     random.seed(config.seed)
-    train_list = random.sample(list(data_path.joinpath("train").rglob("*[lL][aS][zZsS]")), 30)
-    val_list = random.sample(list(data_path.joinpath("val").rglob("*[lL][aS][zZsS]")), 10)
-    test_list = random.sample(list(data_path.joinpath("test").rglob("*[lL][aS][zZsS]")), 10)
+    train_list = random.sample(list(data_path.joinpath("train").rglob("*.[lL][aS][zZsS]")), 30)
+    val_list = random.sample(list(data_path.joinpath("val").rglob("*.[lL][aS][zZsS]")), 10)
+    test_list = random.sample(list(data_path.joinpath("test").rglob("*.[lL][aS][zZsS]")), 10)
 
     data_list = np.concatenate([train_list, val_list, test_list])
     split_list = np.concatenate(

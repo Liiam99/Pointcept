@@ -7,6 +7,8 @@ __pycache__
 exp
 weights
 data
+results
+pkgs
 log
 outputs/
 .vscode
