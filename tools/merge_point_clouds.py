@@ -23,9 +23,8 @@ def merge_las_files(root_dir, output_path, sample_prop):
     random.seed(123)
     print(f"Merging {len(las_files)} las/laz files...")
 
-    points = 0
     for file_nr, las_file in enumerate(las_files):
-        # Takes a sample of the full point cloud.
+        # Takes the specified fraction of the full point cloud.
         las = laspy.read(las_file)
         random_indices = random.sample(range(0, len(las) - 1), round((len(las) - 1)/sample_prop))
         sampled_points = las[random_indices]
@@ -40,9 +39,6 @@ def merge_las_files(root_dir, output_path, sample_prop):
             sampled_points.change_scaling(merged_las.header.scales, merged_las.header.offsets)
             output.append_points(sampled_points.points)
 
-        points += len(sampled_points)
-        print(points)
-
         print(f"Progress: {file_nr + 1}/{len(las_files)}")
 
 
@@ -56,12 +52,12 @@ if __name__ == "__main__":
     parser.add_argument(
         "--output_path",
         required=True,
-        help="File path of the merged output",
+        help="Output file path of the merged output ending in .las or .laz",
     )
     parser.add_argument(
         "--sample_prop",
         default=1,
-        help="Integer that specifies the fraction of points that should be merged."
+        help="Integer that specifies the fraction of points that should be merged. 1 = everything"
     )
     config = parser.parse_args()
 
