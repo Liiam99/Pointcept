@@ -8,7 +8,7 @@ empty_cache = False
 enable_amp = False
 
 num_classes = 8
-ignore_index = 0
+ignore_index = -1
 
 # model settings
 model = dict(
