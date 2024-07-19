@@ -1,13 +1,13 @@
 _base_ = ["../_base_/default_runtime.py"]
 
 # misc custom setting
-batch_size = 2 # bs: total bs in all gpus
+batch_size = 4 # bs: total bs in all gpus
 num_worker = 16
 mix_prob = 0.8
 empty_cache = False
 enable_amp = False
 
-num_classes = 5
+num_classes = 8
 ignore_index = 0
 
 # model settings
@@ -55,8 +55,8 @@ model = dict(
 )
 
 # scheduler settings
-epoch = 50
-eval_epoch = 50
+epoch = 100
+eval_epoch = 100
 optimizer = dict(type="AdamW", lr=0.002, weight_decay=0.005)
 scheduler = dict(
     type="OneCycleLR",
@@ -70,17 +70,20 @@ param_dicts = [dict(keyword="block", lr=0.0002)]
 
 # dataset settings
 dataset_type = "DefaultDataset"
-data_root = "data/preprocessed/railcloudhdf"
+data_root = "data/RailCloudHdF/preprocessed"
 
 data = dict(
     num_classes=num_classes,
     ignore_index=ignore_index,
     names = [
-        "Other",
-        "Catenary pole",
+        "Unclassified",
         "Rail",
-        "Catenary wire",
-        "LCG",
+        "Wiring",
+        "Catenary pole",
+        "Installation",
+        "Crossing",
+        "Switch box",
+        "Signalling",
     ],
     train=dict(
         type=dataset_type,

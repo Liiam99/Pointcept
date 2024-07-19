@@ -9,7 +9,6 @@ import multiprocessing as mp
 import os
 import laspy
 import numpy as np
-import random
 from concurrent.futures import ProcessPoolExecutor
 from itertools import repeat
 from pathlib import Path
@@ -24,12 +23,6 @@ def parse_tile(file_path, split, output_root):
     intensity = np.array(las.intensity).reshape([-1, 1])
     strength = intensity/np.iinfo(intensity.dtype).max
     segment = np.array(las.classification)
-
-    segment[np.isin(segment, [1, 2, 3, 6])] = 0
-    segment[segment == 4] = 1
-    segment[segment == 5] = 2
-    segment[segment == 7] = 3
-    segment[segment == 8] = 4
 
     output_root = Path(output_root)
     save_path = output_root / split / file_path.stem
@@ -74,10 +67,9 @@ if __name__ == "__main__":
 
     # Retrieve the file paths of the las/laz files per split.
     data_path = Path(config.dataset_root)
-    random.seed(config.seed)
-    train_list = random.sample(list(data_path.joinpath("train").rglob("*.[lL][aS][zZsS]")), 30)
-    val_list = random.sample(list(data_path.joinpath("val").rglob("*.[lL][aS][zZsS]")), 10)
-    test_list = random.sample(list(data_path.joinpath("test").rglob("*.[lL][aS][zZsS]")), 10)
+    train_list = list(data_path.joinpath("train").glob("*.[lL][aS][zZsS]"))
+    val_list = list(data_path.joinpath("val").glob("*.[lL][aS][zZsS]"))
+    test_list = list(data_path.joinpath("test").glob("*.[lL][aS][zZsS]"))
 
     data_list = np.concatenate([train_list, val_list, test_list])
     split_list = np.concatenate(

@@ -11,7 +11,7 @@ def export_result(result_path, test_root, output_dir):
     test_root = Path(test_root)
 
     # Retrieve the original point cloud.
-    las_path = test_root.rglob(f"*/{result_path.stem[:-5]}.[lL][aS][zZ]")
+    las_path = test_root.glob(f"{result_path.stem[:-5]}.[lL][aS][zZ]")
     las_path = next(las_path)
     las = laspy.read(las_path)
 
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--test_root",
         required=True,
-        help="Path where the non-processed test folder is located.",
+        help="Path where the test folder with the point cloud files is located.",
     )
     parser.add_argument(
         "--output_dir",
