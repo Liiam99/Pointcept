@@ -46,6 +46,8 @@ class Collect(object):
         for name, keys in self.kwargs.items():
             name = name.replace("_keys", "")
             assert isinstance(keys, Sequence)
+            if isinstance(keys, str):
+                keys = [keys]
             data[name] = torch.cat([data_dict[key].float() for key in keys], dim=1)
         return data
 

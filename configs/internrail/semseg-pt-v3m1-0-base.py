@@ -1,5 +1,7 @@
 _base_ = ["../_base_/default_runtime.py"]
 
+seed = 123
+
 # misc custom setting
 batch_size = 4 # bs: total bs in all gpus
 num_worker = 16
@@ -7,7 +9,7 @@ mix_prob = 0.8
 empty_cache = False
 enable_amp = False
 
-num_classes = 8
+num_classes = 5
 ignore_index = -1
 
 # model settings
@@ -17,7 +19,7 @@ model = dict(
     backbone_out_channels=64,
     backbone=dict(
         type="PT-v3m1",
-        in_channels=4,
+        in_channels=3,
         order=["z", "z-trans", "hilbert", "hilbert-trans"],
         stride=(2, 2, 2, 2),
         enc_depths=(2, 2, 2, 6, 2),
@@ -60,8 +62,8 @@ eval_epoch = 100
 optimizer = dict(type="AdamW", lr=0.002, weight_decay=0.005)
 scheduler = dict(
     type="OneCycleLR",
-    max_lr=[0.002, 0.0002],
-    pct_start=0.04,
+    max_lr=[0.006, 0.0006],
+    pct_start=0.05,
     anneal_strategy="cos",
     div_factor=10.0,
     final_div_factor=100.0,
@@ -70,16 +72,13 @@ param_dicts = [dict(keyword="block", lr=0.0002)]
 
 # dataset settings
 dataset_type = "DefaultDataset"
-data_root = "data/RailCloudHdF/preprocessed"
+data_root = "data/InternRail/pointcept"
 
 data = dict(
     num_classes=num_classes,
     ignore_index=ignore_index,
     names = [
         "Unclassified",
-        "Rail",
-        "Wiring",
-        "Catenary pole",
         "Installation",
         "Crossing",
         "Switch box",
@@ -105,16 +104,16 @@ data = dict(
                 grid_size=0.05,
                 hash_type="fnv",
                 mode="train",
-                keys=("coord", "strength", "segment"),
+                keys=("coord", "segment"),
                 return_grid_coord=True,
             ),
-            # dict(type="SphereCrop", point_max=1000000, mode="random"),
+            #dict(type="SphereCrop", point_max=50000, mode="random"),
             # dict(type="CenterShift", apply_z=False),
             dict(type="ToTensor"),
             dict(
                 type="Collect",
                 keys=("coord", "grid_coord", "segment"),
-                feat_keys=("coord", "strength"),
+                feat_keys=["coord"],
             ),
         ],
         test_mode=False,
@@ -131,15 +130,15 @@ data = dict(
                 grid_size=0.05,
                 hash_type="fnv",
                 mode="train",
-                keys=("coord", "strength", "segment"),
+                keys=("coord", "segment"),
                 return_grid_coord=True,
             ),
-            # dict(type="SphereCrop", point_max=1000000, mode='center'),
+            #dict(type="SphereCrop", point_max=50000, mode='center'),
             dict(type="ToTensor"),
             dict(
                 type="Collect",
                 keys=("coord", "grid_coord", "segment"),
-                feat_keys=("coord", "strength"),
+                feat_keys=["coord"],
             ),
         ],
         test_mode=False,
@@ -153,10 +152,10 @@ data = dict(
             dict(type="Copy", keys_dict={"segment": "origin_segment"}),
             dict(
                 type="GridSample",
-                grid_size=0.05,
+                grid_size=0.025,
                 hash_type="fnv",
                 mode="train",
-                keys=("coord", "strength", "segment"),
+                keys=("coord", "segment"),
                 return_inverse=True,
             ),
         ],
@@ -167,7 +166,7 @@ data = dict(
                 hash_type="fnv",
                 mode="test",
                 return_grid_coord=True,
-                keys=("coord", "strength"),
+                keys=["coord"],
             ),
             crop=None,
             post_transform=[
@@ -175,7 +174,7 @@ data = dict(
                 dict(
                     type="Collect",
                     keys=("coord", "grid_coord", "index"),
-                    feat_keys=("coord", "strength"),
+                    feat_keys=["coord"],
                 ),
             ],
             aug_transform=[

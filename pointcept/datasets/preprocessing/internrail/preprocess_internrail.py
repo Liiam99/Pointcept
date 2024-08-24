@@ -1,9 +1,3 @@
-"""
-PLACEHOLDER
-
-PLACEHOLDER
-"""
-
 import argparse
 import multiprocessing as mp
 import os
@@ -20,15 +14,20 @@ def parse_tile(file_path, split, output_root):
     # Extract coordinates [x, y, z], strength [0.->1.] & label [uint]
     las = laspy.read(file_path)
     coord = np.array((las.x, las.y, las.z)).transpose()
-    intensity = np.array(las.intensity).reshape([-1, 1])
-    strength = intensity/np.iinfo(intensity.dtype).max
+
+    if file_path.stem.startswith("CSX"):
+        FEET_TO_METERS = 1200/3937
+        coord = coord*FEET_TO_METERS
+
+    #intensity = np.array(las.intensity).reshape([-1, 1])
+    #strength = intensity/np.iinfo(intensity.dtype).max
     segment = np.array(las.classification)
 
     output_root = Path(output_root)
     save_path = output_root / split / file_path.stem
     save_path.mkdir(parents=True, exist_ok=True)
     np.save(save_path / "coord.npy", coord.astype(np.float32))
-    np.save(save_path / "strength.npy", strength.astype(np.float32))
+    #np.save(save_path / "strength.npy", strength.astype(np.float32))
     np.save(save_path / "segment.npy", segment.astype(np.uint8))
 
 
@@ -37,7 +36,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--dataset_root",
         required=True,
-        help="Path to the RailCloud-HdF dataset containing train, val, and test folders",
+        help="Path to the InternRail dataset containing train, val, and test folders",
     )
     parser.add_argument(
         "--output_root",
